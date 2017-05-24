@@ -2,9 +2,10 @@ import curses
 import math
 import os
 import traceback
-import threading
 import time
 import random
+from threading import Thread
+
 
 class CursedMenu(object):
     #TODO: name your plant
@@ -30,7 +31,7 @@ class CursedMenu(object):
         self.highlighted = curses.color_pair(1)
         self.normal = curses.A_NORMAL
         # Threaded screen update for live changes
-        screen_thread = threading.Thread(target=self.update_plant_live, args=())
+        screen_thread = Thread(target=self.update_plant_live, args=())
         screen_thread.daemon = True
         screen_thread.start()
         self.screen.clear()

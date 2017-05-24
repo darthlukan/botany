@@ -7,10 +7,10 @@ import json
 import os
 import random
 import getpass
-import threading
 import errno
 import uuid
 import sqlite3
+from threading import Thread 
 from menu_screen import *
 
 # TODO:
@@ -202,16 +202,16 @@ class Plant(object):
             return True
         else:
             self.watered_24h = False
-            return False
+        return False
 
     def mutate_check(self):
         # Create plant mutation
         # Increase this # to make mutation rarer (chance 1 out of x each second)
         CONST_MUTATION_RARITY = 5000
-        mutation_seed = random.randint(1,CONST_MUTATION_RARITY)
+        mutation_seed = random.randint(1, CONST_MUTATION_RARITY)
         if mutation_seed == CONST_MUTATION_RARITY:
             # mutation gained!
-            mutation = random.randint(0,len(self.mutation_dict)-1)
+            mutation = random.randint(0, len(self.mutation_dict) - 1)
             if self.mutation == 0:
                 self.mutation = mutation
                 return True
@@ -257,7 +257,7 @@ class Plant(object):
 
     def start_life(self):
        # runs life on a thread
-       thread = threading.Thread(target=self.life, args=())
+       thread = Thread(target=self.life, args=())
        thread.daemon = True
        thread.start()
 
@@ -282,6 +282,7 @@ class Plant(object):
             generation_bonus = 0.2 * (self.generation - 1)
             adjusted_sleep_time = 1 / (1 + generation_bonus)
             time.sleep(adjusted_sleep_time)
+
 
 class DataManager(object):
     # handles user data, puts a .botany dir in user's home dir (OSX/Linux)
@@ -318,12 +319,14 @@ class DataManager(object):
             return False
 
     def start_threads(self,this_plant):
-        # creates threads to save files every minute
-        death_check_thread = threading.Thread(target=self.death_check_update, args=(this_plant,))
+        '''Starts two threads which check for plant death and 
+        autosaves our plant respectively.
+        '''
+        death_check_thread = Thread(target=self.death_check_update, args=(this_plant,))
         death_check_thread.daemon = True
         death_check_thread.start()
 
-        autosave_thread = threading.Thread(target=self.autosave, args=(this_plant,))
+        autosave_thread = Thread(target=self.autosave, args=(this_plant,))
         autosave_thread.daemon = True
         autosave_thread.start()
 
